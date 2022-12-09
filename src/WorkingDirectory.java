@@ -1,26 +1,20 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import static java.lang.System.in;
 
-
 public class WorkingDirectory{
-
-    Scanner sc = new Scanner(in);
-
     public File[] ListingFiles(String path){
         File folder = new File(path);
         File[] ListFiles = folder.listFiles();
         return ListFiles;
     }
 
-    public void Checksum() throws IOException, NoSuchAlgorithmException {
-        File[] v01 = ListingFiles("/home/agusr-sb-07/");
+    public void Checksum() throws IOException, NoSuchAlgorithmException, NullPointerException {
+        File[] v01 = ListingFiles("/");
         for(File file : v01){
             if(file.isFile()){
                 FileInputStream fi0 = new FileInputStream(file);
@@ -46,9 +40,9 @@ public class WorkingDirectory{
                         FileInputStream fi02 = new FileInputStream(file2);
                         MessageDigest sha3_512_1 = MessageDigest.getInstance("SHA3-512");
                         byte[] array1 = new byte[1024];
-                        int bytesCount = 0;
-                        while ((bytesCount = fi02.read(array1)) != -1){
-                            sha3_512_1.update(array1,0,bytesCount);
+                        int bytesCount2 = 0;
+                        while ((bytesCount2 = fi02.read(array1)) != -1){
+                            sha3_512_1.update(array1,0,bytesCount2);
                         }
                         fi02.close();
                         byte[] bytes1 = sha3_512_1.digest();
