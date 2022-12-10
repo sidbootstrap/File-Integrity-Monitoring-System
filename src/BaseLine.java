@@ -1,3 +1,3 @@
-public class BaseLine{
+public class BaseLine extends WorkingDirectory{
 
 }
