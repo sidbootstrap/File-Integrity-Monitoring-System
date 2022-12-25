@@ -1,76 +1,57 @@
-import java.awt.font.ShapeGraphicAttribute;
+import javax.swing.JOptionPane;
+import java.awt.Toolkit;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-public class WorkingDirectory {
-    public File[] ListingFiles(String path) {
-        File folder = new File(path);
-        File[] ListFiles = folder.listFiles();
-        return ListFiles;
-    }
-
-    public String Sha3_512Conversion(File file) throws IOException, NoSuchAlgorithmException {
-        FileInputStream fi0 = new FileInputStream(file);
-        MessageDigest sha3_512 = MessageDigest.getInstance("SHA3-512");
-        byte[] array = new byte[1024];
-        int bytesCount = 0;
-        while ((bytesCount = fi0.read(array)) != -1) {
-            sha3_512.update(array, 0, bytesCount);
+public class WorkingDirectory extends BaseLine{
+    public HashMap<File,String> readMap(){
+        HashMap<File, String> map = new HashMap<>();
+        BufferedReader br = null;
+        try {
+            File file = new File("baseLine.txt");
+            br = new BufferedReader(new FileReader(file));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("=");
+                String file_path = parts[0].trim();
+                String hash = parts[1].trim();
+                if (!file_path.equals("") && !hash.equals(""))
+                    map.put(new File(file_path), hash);
+            }
         }
-        fi0.close();
-        byte[] bytes = sha3_512.digest();
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        catch (Exception e) {
+            e.printStackTrace();
         }
-        return sb.toString();
-
-    }
-
-    public HashMap<File, String> Checksum() throws IOException, NoSuchAlgorithmException {
-
-        HashMap<File, String> map = new HashMap<File, String>();
-        File[] v01 = ListingFiles("/home/agusr-sb-07/Documents");
-        for (File file : v01) {
-            if (file.isFile()) {
-                map.put(file, Sha3_512Conversion(file));
-            } else {
-                File[] v02 = ListingFiles(file.getPath());
-                for (File file1 : v02) {
-                    if (file1.isFile()) {
-                        map.put(file1, Sha3_512Conversion(file1));
-                    } else {
-                        File[] v03 = ListingFiles(file1.getPath());
-                        for (File file2 : v03) {
-                            if (file2.isFile()) {
-                                map.put(file2, Sha3_512Conversion(file2));
-
-                            } else {
-                                File[] v04 = ListingFiles(file2.getPath());
-                                for (File file3 : v04) {
-                                    if (file3.isFile()) {
-                                        map.put(file3, Sha3_512Conversion(file3));
-                                    } else {
-                                        File[] v05 = ListingFiles(file3.getPath());
-                                        for (File file4 : v05) {
-                                            if (file4.isFile()) {
-                                                map.put(file4, Sha3_512Conversion(file4));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+        finally {
+            if (br != null) {
+                try {
+                    br.close();
+                }
+                catch (Exception e) {
                 }
             }
         }
         return map;
     }
-}
+    public void CheckAlerts(String path) throws IOException, NoSuchAlgorithmException{
+        while (true) {
+            Toolkit tk = Toolkit.getDefaultToolkit();
+            HashMap<File, String> map = new HashMap<>();
+            File files = new File(path);
+            File[] list = files.listFiles();
+            for (File file : list) {
+                if (file.isFile()) {
+                    map.put(file, Sha3_512Conversion(file));
+                }
+            }
+            if (!map.equals(readMap())) {
+                tk.beep();
+                JOptionPane.showMessageDialog(null, "Alert, FILE INTEGRITY COMPROMISED");
+            }
+        }
+    }
 
+}
